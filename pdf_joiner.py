@@ -1,6 +1,6 @@
 import argparse
 import os
-from PyPDF2 import PdfFileReader, PdfFileMerger, PdfFileWriter
+from PyPDF2 import PdfReader, PdfMerger, PdfWriter
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-o', '--Output', help = 'Define o arquivo de saída')
@@ -13,9 +13,9 @@ if args.Output:
 else:
 	output = 'joined_files.pdf'
 
-pdf_list = os.listdir()
+pdf_list = sorted(os.listdir())
 
-merger = PdfFileMerger()
+merger = PdfMerger()
 
 bookmarks = list()
 
@@ -25,8 +25,8 @@ for pdf_file in pdf_list:
 	if ext.lower() != '.pdf':
 		continue
 	print(pdf_file)
-	reader = PdfFileReader(pdf_file)
-	bookmarks.append((os.path.splitext(pdf_file)[0], reader.numPages))
+	reader = PdfReader(pdf_file)
+	bookmarks.append((os.path.splitext(pdf_file)[0], len(reader.pages)))
 	
 	merger.append(pdf_file)
 
@@ -34,8 +34,8 @@ merger.write(output)
 merger.close()
 
 if args.Bookmarks:
-	reader = PdfFileReader(output)
-	writer = PdfFileWriter()
+	reader = PdfReader(output)
+	writer = PdfWriter()
 	writer.appendPagesFromReader(reader)
 	counter = 0
 	writer.addBookmark(bookmarks[0][0], 0, parent=None)
